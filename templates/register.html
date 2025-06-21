@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrarse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #f9f9f9;
+      --card: #fff;
+      --text: #222;
+      --accent: #00796B;
+    }
+
+    body.dark {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --text: #e0e0e0;
+      --accent: #26a69a;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .link {
+      margin-top: 10px;
+      display: block;
+    }
+
+    #toggleDark {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .flash {
+      background: #ffc107;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="toggleDark">🌙</button>
+
+  <form method="POST" class="card">
+    <h2>Registro de Usuario</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <input type="text" name="nombre" placeholder="Nombre completo" required>
+    <input type="email" name="email" placeholder="Correo electrónico" required>
+    <input type="password" name="contraseña" placeholder="Contraseña" required>
+    <button type="submit">Registrarse</button>
+
+    <a href="/login" class="link">¿Ya tienes cuenta? Inicia sesión</a>
+  </form>
+
+  <script>
+    const toggleBtn = document.getElementById("toggleDark");
+    const body = document.body;
+
+    if (localStorage.getItem("modo") === "oscuro") {
+      body.classList.add("dark");
+      toggleBtn.textContent = "☀️";
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      body.classList.toggle("dark");
+      const modo = body.classList.contains("dark") ? "oscuro" : "claro";
+      localStorage.setItem("modo", modo);
+      toggleBtn.textContent = modo === "oscuro" ? "☀️" : "🌙";
+    });
+  </script>
+
+</body>
+</html>

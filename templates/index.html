@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Texto a Voz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #222;
+      --primary: #00796B;
+      --secondary: #2196F3;
+      --card: #ffffff;
+    }
+
+    body.dark {
+      --bg: #121212;
+      --text: #e0e0e0;
+      --primary: #26a69a;
+      --secondary: #42a5f5;
+      --card: #1e1e1e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      transition: background 0.3s;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    textarea, select {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      margin: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #convertirBtn {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    #descargarBtn {
+      background-color: var(--secondary);
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    audio {
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    #toggleDark {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      color: var(--text);
+      font-size: 20px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="toggleDark" title="Cambiar modo">🌙</button>
+
+  <div class="card">
+    <h1>🗣 Texto a Voz</h1>
+
+    <form id="formulario">
+      <textarea id="text" name="text" placeholder="Escribe algo para convertir en voz..." required></textarea>
+
+      <select id="lang" name="lang" required>
+        <option value="es" selected>🇪🇸 Español</option>
+        <option value="en">🇺🇸 Inglés</option>
+        <option value="pt">🇧🇷 Portugués</option>
+        <option value="fr">🇫🇷 Francés</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="de">🇩🇪 Alemán</option>
+      </select>
+
+      <button id="convertirBtn" type="submit">🔊 Convertir</button>
+    </form>
+
+    <audio id="player" controls style="display:none;"></audio>
+    <br>
+    <a id="descargar" href="#" download style="display:none;">
+      <button id="descargarBtn">📥 Descargar audio</button>
+    </a>
+  </div>
+
+  <script>
+    // Persistencia del modo
+    const toggleBtn = document.getElementById("toggleDark");
+    const body = document.body;
+
+    if (localStorage.getItem("modo") === "oscuro") {
+      body.classList.add("dark");
+      toggleBtn.textContent = "☀️";
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      body.classList.toggle("dark");
+      const modo = body.classList.contains("dark") ? "oscuro" : "claro";
+      localStorage.setItem("modo", modo);
+      toggleBtn.textContent = modo === "oscuro" ? "☀️" : "🌙";
+    });
+
+    // Envío de texto y configuración a /speak
+    document.getElementById("formulario").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const texto = document.getElementById("text").value;
+      const idioma = document.getElementById("lang").value;
+
+      const formData = new FormData();
+      formData.append("text", texto);
+      formData.append("lang", idioma);
+
+      const res = await fetch("/speak", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+      const reproductor = document.getElementById("player");
+      const enlaceDescarga = document.getElementById("descargar");
+
+      reproductor.src = data.url;
+      reproductor.style.display = "block";
+      reproductor.play();
+
+      enlaceDescarga.href = "/descargar?archivo=" + data.url.substring(1);
+      enlaceDescarga.style.display = "inline-block";
+    });
+  </script>
+
+</body>
+</html>
+
+
+
